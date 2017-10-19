@@ -53,7 +53,7 @@ public class DbConfig implements BeanProcessor {
         }*/
 
         Base.open(dataSource);
-        System.out.println("数据库初始成功");
+        System.out.println("数据库初始成功!");
 
 
     }
