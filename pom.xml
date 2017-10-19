@@ -1,0 +1,80 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>webCude</groupId>
+  <artifactId>webCude</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>webCude</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <blade-mvc.version>2.0.3</blade-mvc.version>
+  </properties>
+
+  <dependencies>
+      <!-- blade mvc dependency -->
+      <dependency>
+          <groupId>com.bladejava</groupId>
+          <artifactId>blade-mvc</artifactId>
+          <version>${blade-mvc.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>com.bladejava</groupId>
+          <artifactId>blade-jdbc</artifactId>
+          <version>0.2.2-beta</version>
+      </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+
+      <!-- 阿里数据库连接池 -->
+      <dependency>
+          <groupId>com.alibaba</groupId>
+          <artifactId>druid</artifactId>
+          <version>1.1.4</version>
+      </dependency>
+
+      <!-- webmagic -->
+      <dependency>
+          <groupId>us.codecraft</groupId>
+          <artifactId>webmagic-core</artifactId>
+          <version>0.7.3</version>
+      </dependency>
+
+      <!-- webjars使用插件加载 Begin -->
+      <dependency>
+          <groupId>org.webjars</groupId>
+          <artifactId>bootstrap</artifactId>
+          <version>3.3.7</version>
+      </dependency>
+      <dependency>
+          <groupId>org.webjars</groupId>
+          <artifactId>jquery</artifactId>
+          <version>3.2.1</version>
+      </dependency>
+      <!-- webjars使用插件加载 End -->
+
+  </dependencies>
+
+    <build>
+        <finalName>webCube</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
