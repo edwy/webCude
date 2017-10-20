@@ -1,2 +1,14 @@
 .idea
 *.iml
+.idea/workspace.xml
+.idea/workspace.xml
+*.class
+*.properties
+*.lst
+*.jar
+*.iml
+.idea/workspace.xml
+.idea/workspace.xml
+*.log
+*.iml
+webCude.iml
