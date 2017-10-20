@@ -11,4 +11,13 @@
 .idea/workspace.xml
 *.log
 *.iml
+*.idea
 webCude.iml
+.idea/libraries/Maven__com_bladejava_blade_jdbc_0_2_2_beta.xml
+.idea/compiler.xml
+.idea/compiler.xml
+.idea/libraries/Maven__com_alibaba_druid_1_1_4.xml
+.idea/libraries/Maven__com_bladejava_blade_jdbc_0_2_2_beta.xml
+.idea/libraries/Maven__com_bladejava_blade_log_0_0_5.xml
+.idea/libraries/Maven__com_bladejava_blade_mvc_2_0_3.xml
+.idea/uiDesigner.xml
