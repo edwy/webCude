@@ -33,13 +33,11 @@ public class AuthController {
 
     @PostRoute("doLogin")
     public String doLogin(@Param User user, Request request, Response response){
-
         if(authService.checkAuth(user)){
             response.redirect("/index");
         }else{
             response.text("登录失败");
         }
-
         return null;
     }
 }
