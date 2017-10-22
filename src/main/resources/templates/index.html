@@ -6,9 +6,15 @@
 </head>
 <body>
 
-<h1>${loginuser} 大兄弟，你获得力量了！！</h1>
+<h1></h1>
 
-<a href="/logout">我要注销</a>
+<form class="form-signin" method="post" action="/bookSpider">
+
+    <label class="sr-only">url</label>
+    <input type="text" name="url" class="form-control" placeholder="请输入URL" required/>
+    <p style="color: red">${error}</p>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Action</button>
+</form>
 
 </body>
 </html>

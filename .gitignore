@@ -22,3 +22,7 @@ webCude.iml
 .idea/libraries/Maven__com_bladejava_blade_mvc_2_0_3.xml
 .idea/uiDesigner.xml
 .idea/libraries/Maven__com_alibaba_druid_1_1_4.xml
+target/classes/templates/index.html
+target/classes/templates/login.html
+webCude.iml
+.idea/workspace.xml

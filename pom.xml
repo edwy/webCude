@@ -88,6 +88,11 @@
       </dependency>
       <!-- webjars使用插件加载 End -->
 
+      <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+          <version>3.4</version>
+      </dependency>
   </dependencies>
 
     <build>
