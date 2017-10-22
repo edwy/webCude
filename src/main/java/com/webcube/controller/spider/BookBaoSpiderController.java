@@ -27,7 +27,7 @@ public class BookBaoSpiderController implements PageProcessor {
     public String startBookSpider(@Param String url , Request request, Response response){
         Site site = new Site();
         site.setCharset("UTF-8");
-        Spider bookBaoSpider = Spider.create(new BookBaoSpiderController()).addUrl(url).thread(1);
+        Spider bookBaoSpider = Spider.create(new BookBaoSpiderController()).addUrl(url).thread(5);
         bookBaoSpider.start();
         return  null;
     }
@@ -55,7 +55,7 @@ public class BookBaoSpiderController implements PageProcessor {
             String downLoadUrl = "www.bookbao.cc"+page.getHtml().$(".downlistbox li:nth-child(4)").regex("href=['\\\"]([^'\\\"]*)['\\\"]").toString();
             book.setBook_name(bookName);
             book.setBook_summary(summary);
-            book.setBook_url(downLoadUrl);
+            book.setBook_url(downLoadUrl.replaceAll("amp;",""));
             new BookSpiderService().saveBook(book);
         } else {
             System.out.println(page.getUrl());
