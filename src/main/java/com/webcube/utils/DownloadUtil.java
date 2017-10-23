@@ -21,12 +21,17 @@ import java.util.concurrent.Future;
  *
  */
 public class DownloadUtil {
+
+    public void setUrl(String url){
+
+    }
     public static void main(String[] args) {
         // 下载列表
         Vector<String> downloadList = new Vector<String>();
         // 添加下载地址
-        downloadList.add("");
-
+        for(int i = 0;i<269;i++){
+            downloadList.add("http://www.bookbao.cc/book.php?txt=/TXT/%D0%DE%D5%E6%B9%E9%C0%B4.txt&yeshu="+i);
+        }
         download(downloadList);
     }
 
@@ -42,7 +47,7 @@ public class DownloadUtil {
             for (int i = 0; i < downloadList.size(); i++) {
                 pool = Executors.newCachedThreadPool();
                 final String url = downloadList.get(i);
-                String filename = getFilename(downloadList.get(i));
+                String filename = "111";//getFilename(downloadList.get(i));
                 System.out.println("正在下载第" + (i+1) + "个文件，地址：" + url);
                 Future<HttpURLConnection> future = pool.submit(new Callable<HttpURLConnection>(){
                     @Override
@@ -90,11 +95,10 @@ public class DownloadUtil {
 
     /**
      * 写入文件
-     * @param inputStream
      */
     static void writeFile(BufferedInputStream bufferedInputStream,String filename){
         //创建本地文件
-        File destfileFile = new File("d:\\temp\\download\\"+ filename);
+        File destfileFile = new File("D:\\temp\\download\\"+ filename);
         if (destfileFile.exists()) {
             destfileFile.delete();
         }
