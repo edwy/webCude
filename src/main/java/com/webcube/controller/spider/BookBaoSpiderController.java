@@ -1,7 +1,5 @@
 package com.webcube.controller.spider;
 
-
-
 import com.blade.mvc.annotation.Param;
 import com.blade.mvc.annotation.Path;
 import com.blade.mvc.annotation.PostRoute;
@@ -15,7 +13,6 @@ import us.codecraft.webmagic.Spider;
 
 
 import us.codecraft.webmagic.processor.PageProcessor;
-
 
 /**
  * @author Yang Jiyu
@@ -39,16 +36,14 @@ public class BookBaoSpiderController implements PageProcessor {
             .addCookie("bdshare_firstime","1508570788716; ASPSESSIONIDAAQASQRC=EJDHABHBOGCAIDFMEGEDHJMF; ftcpvrich_fidx=3")
             .setUserAgent("Mozilla/5.0 (Windows NT 10.0; WOW64; rv:56.0) Gecko/20100101 Firefox/56.0");
 
-    /**定于需要抓去固定页*/
+    /**定义需要抓去固定页*/
     public static String dataUrl = "http://www\\.bookbao\\.cc/TXT/down_\\w+\\.html";
 
     @Override
     public void process(Page page) {
         String filePath = "D:\\eBook\\";
         BookInfo book = new BookInfo();
-        //2.添加到待抓取页面
         page.addTargetRequests(page.getHtml().xpath("//div[@class='listl2']/ul/li/h5").links().all());
-        //如果是列表页则跳过;
         if (page.getUrl().regex(dataUrl).match()) {
             String bookName = page.getHtml().xpath("h1").regex("《([^》]+)》").toString();
             String summary = page.getHtml().$(".con_text span:last-child").toString();
@@ -60,7 +55,6 @@ public class BookBaoSpiderController implements PageProcessor {
         } else {
             System.out.println(page.getUrl());
         }
-
     }
 
     @Override
