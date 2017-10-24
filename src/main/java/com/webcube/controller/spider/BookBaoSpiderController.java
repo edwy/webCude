@@ -49,42 +49,28 @@ public class BookBaoSpiderController implements PageProcessor {
     /**定义需要抓去固定页*/
     public static String dataUrl = "http://www\\.bookbao\\.cc/TXT/down_\\w+\\.html";
 
-    public static String contentPage = "http://www\\.bookbao\\.cc/book\\.php\\?txt=/TXT/[\u4e00-\u9fa5]+\\.txt";
+    public static String contentPage = "http://www\\.bookbao\\.cc/book\\.php\\?txt=/TXT/((%[0-9A-Fa-f]{2}){2})+\\.txt";
 
-    //public static String contentPage = "http://www\\.bookbao\\.cc/book\\.php\\?txt=/TXT/\\((%[0-9A-Fa-f]{2}){2})+\\.txt";
     @Override
-    public void process(Page page) {
+    public void process(Page page)  {
         String filePath = "D:\\eBook\\";
-        //从主页获取列表页;
-        //http://www.bookbao.cc/TXT/list1_1.html
-        //从列表页获取下载也;
-        //从下载页获取在线内容;
-        //下载内容保存文本;
-        //1.获取最大页数，并根据最大页数循环目标页
 
-        /** int maxPageIndex = Integer.parseInt(page.getHtml().$("code a:last-child").regex("<a.*?>([\\s\\S]*)</a>").toString());*/
         page.addTargetRequests(page.getHtml().xpath("//div[@class='listl2']/ul/li/h5").links().all());
-/*        for(int i=1;i<maxPageIndex;i++){
-
-        }*/
-        //明细页
+        //明细页,抓取在线阅读URL
         if (page.getUrl().regex(dataUrl).match()) {
-            /**  String bookName = page.getHtml().xpath("h1").regex("《([^》]+)》").toString();*/
-            /**String summary = page.getHtml().$(".con_text span:last-child").toString();*/
-            /**String downLoadUrl = "www.bookbao.cc"+page.getHtml().$(".downlistbox li:nth-child(4)").regex("href=['\\\"]([^'\\\"]*)['\\\"]").toString();*/
-            page.addTargetRequest(page.getHtml().$(".downlistbox > li:nth-child(1) > a:nth-child(1)").links().toString());
+            //转换内容页URL中汉字为encod=GB2312,添加TargetRequest
+            page.addTargetRequest(urlTransform(page.getHtml().$(".downlistbox > li:nth-child(1) > a:nth-child(1)").links().toString()));
         //如果是内容页,获取当前页数和当前页内容,并循环获取每一页,保存本地文件;
         }else if(page.getUrl().regex(contentPage).match()){
-            Integer endContentPageIndex = Integer.parseInt(page.getHtml().$(".ddd > div:nth-child(3) > a:nth-child(12)").toString());
-            for(int i=0;i<endContentPageIndex;i++){
-                String bookContentLink = page.getHtml().$(".downlistbox > li:nth-child(1) > a:nth-child(1)").links().toString()+"&yeshu="+i;
-                try {
-                    page.addTargetRequest(urlTransform(bookContentLink));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            //获取最后一页,循环添加TargetRequest
+            String endPageUrl = urlTransform(page.getHtml().xpath("/html/body/div/div").links().all().get(13).toString());
+            Integer endPageIndex = Integer.parseInt(endPageUrl.substring(endPageUrl.length()-3,endPageUrl.length()).startsWith("=")
+                    ? endPageUrl.substring(endPageUrl.length()-2,endPageUrl.length())
+                    : endPageUrl.substring(endPageUrl.length()-3,endPageUrl.length()));
+            for(int i = 1; i<=endPageIndex;i++){
+                page.addTargetRequest(urlTransform(page.getUrl()+"&yeshu="+i));
             }
-            page.getHtml().xpath("//div[@class='ddd']/text()");
+
         //如果是列表页,则不做处理进行跳转;
         } else {
             page.setSkip(true);
@@ -101,14 +87,20 @@ public class BookBaoSpiderController implements PageProcessor {
      * @return
      * @throws Exception
      */
-    public String urlTransform(String url) throws Exception {
+    public String urlTransform(String url) {
+        String  encodeUrl= "";
         String chinese = "";
         String regex = "([\u4e00-\u9fa5]+)";
         Matcher matcher = Pattern.compile(regex).matcher(url);
         while (matcher.find()) {
             chinese += matcher.group(0);
         }
-        return url.replaceAll("[\u4e00-\u9fa5]+",codec.encode(chinese,"gb2312"));
+        try {
+            encodeUrl = url.replaceAll("[\u4e00-\u9fa5]+",codec.encode(chinese,"gb2312"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return  encodeUrl;
     }
 
 }
