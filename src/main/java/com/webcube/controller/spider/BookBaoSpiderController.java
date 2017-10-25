@@ -8,6 +8,7 @@ import com.blade.mvc.http.Response;
 import com.webcube.model.BookInfo;
 import com.webcube.service.spider.BookSpiderService;
 import com.webcube.utils.DownloadUtil;
+import com.webcube.utils.FileUtil;
 import org.apache.commons.codec.net.URLCodec;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
@@ -51,10 +52,10 @@ public class BookBaoSpiderController implements PageProcessor {
 
     public static String contentPage = "http://www\\.bookbao\\.cc/book\\.php\\?txt=/TXT/((%[0-9A-Fa-f]{2}){2})+\\.txt";
 
+    public static String finalContentPage = contentPage +"\\&yeshu=[0-9]+";
+
     @Override
     public void process(Page page)  {
-        String filePath = "D:\\eBook\\";
-
         page.addTargetRequests(page.getHtml().xpath("//div[@class='listl2']/ul/li/h5").links().all());
         //明细页,抓取在线阅读URL
         if (page.getUrl().regex(dataUrl).match()) {
@@ -70,7 +71,11 @@ public class BookBaoSpiderController implements PageProcessor {
             for(int i = 1; i<=endPageIndex;i++){
                 page.addTargetRequest(urlTransform(page.getUrl()+"&yeshu="+i));
             }
+        //最终目标页;
+        }else if(page.getUrl().regex(finalContentPage).match()){
+            //进行数据保存;本地;
 
+            new FileUtil().method1();
         //如果是列表页,则不做处理进行跳转;
         } else {
             page.setSkip(true);
