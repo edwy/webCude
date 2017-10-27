@@ -62,11 +62,11 @@ public class FileUtil {
      *文件内容写入
      */
     public static boolean writeFile(String filePath, String contents){
+
         boolean result = true;
         BufferedWriter out = null;
         try {
-            out = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(filePath, true)));
+            out = new BufferedWriter(new FileWriter(filePath,true));
             out.write(contents+"\r\n");
         } catch (Exception e) {
             result = false;
@@ -81,7 +81,6 @@ public class FileUtil {
         }
         return result;
     }
-
 
 
 }

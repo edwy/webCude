@@ -5,9 +5,6 @@ import com.blade.mvc.annotation.Path;
 import com.blade.mvc.annotation.PostRoute;
 import com.blade.mvc.http.Request;
 import com.blade.mvc.http.Response;
-import com.webcube.model.BookInfo;
-import com.webcube.service.spider.BookSpiderService;
-import com.webcube.utils.DownloadUtil;
 import com.webcube.utils.FileUtil;
 import org.apache.commons.codec.net.URLCodec;
 import us.codecraft.webmagic.Page;
@@ -15,11 +12,9 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
 
 
-import us.codecraft.webmagic.pipeline.FilePipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,7 +42,7 @@ public class BookBaoSpiderController implements PageProcessor {
      */
     public static String dataUrl = "http://www\\.bookbao\\.cc/TXT/down_\\w+\\.html";
 
-    public static String contentPage = "^http://www\\.bookbao\\.cc/book\\.php\\?txt=/TXT/((%[0-9A-Fa-f]{2}){2})+\\.txt$";
+    public static String contentPage = "http://www\\.bookbao\\.cc/book\\.php\\?txt=/TXT/((%[0-9A-Fa-f]{2}){2})+\\.txt";
 
     public static String urlSuffix = "\\&yeshu=";
 
@@ -57,8 +52,8 @@ public class BookBaoSpiderController implements PageProcessor {
     public String startBookSpider(@Param String url, Request request, Response response) {
         Site site = new Site();
         site.setCharset("UTF-8");
-        Spider bookBaoSpider = Spider.create(new BookBaoSpiderController()).addUrl(url).thread(5).addPipeline(new FilePipeline());
-        bookBaoSpider.start();
+        Spider bookBaoSpider = Spider.create(new BookBaoSpiderController()).addUrl(url).thread(2);
+        bookBaoSpider.run();
         return null;
     }
 
@@ -69,51 +64,36 @@ public class BookBaoSpiderController implements PageProcessor {
 
     @Override
     public void process(Page page) {
+        String pre = "^" , end = "$",slash ="/",txt = ".txt";
         page.addTargetRequests(page.getHtml().xpath("//div[@class='listl2']/ul/li/h5").links().all());
-        //明细页,抓取在线阅读URL
         if (page.getUrl().regex(dataUrl).match()) {
-            //转换内容页URL中汉字为encod=GB2312,添加TargetRequest
             page.addTargetRequest(urlTransform(page.getHtml().$(".downlistbox > li:nth-child(1) > a:nth-child(1)").links().toString()));
-            //如果是内容页,获取当前页数和当前页内容,并循环获取每一页,保存本地文件;
-        } else if (page.getUrl().regex(contentPage).match()) {
-            //获取最后一页,循环添加TargetRequest
+        } else if (page.getUrl().regex(pre+contentPage+end).match()) {
             String endPageUrl = urlTransform(page.getHtml().xpath("/html/body/div/div").links().all().get(13).toString());
-            //正常获取应该是没有页数的;
-            //也有可能存在有页数的;
-            Integer endPageIndex = Integer.parseInt(subUrl(endPageUrl,"suffix"));
-                        for (int i = 0; i <= endPageIndex; i++) {
-                if(page.getUrl().regex(urlSuffix).match()){
-                    page.addTargetRequest(subUrl(page.getUrl().toString(),"pre")+i);
-                }else{
+            Integer endPageIndex = findNum(endPageUrl);
+            for (int i = 0; i <= endPageIndex; i++) {
                     page.addTargetRequest(urlTransform(page.getUrl() + "&yeshu=" + i));
-                }
-
             }
-            //最终目标页;
         } else if (page.getUrl().regex(contentPage+urlSuffix+numberReg).match()) {
             String bookName = page.getHtml().xpath("/html/body/h1/text()").toString();
             String currentPageContents = page.getHtml().xpath("//div[@class='ddd']/text()").toString();
-            //如果是第一页,则建立当前小说名字的文件;并建立文件
-            //else打开文件写入后续页内容
-            if(0 == Integer.parseInt(subUrl(page.getUrl().toString(),"suffix"))){
-                if(FileUtil.createDir(dirName + bookName)){
-                    //创建文件并写入内容;
-                    FileUtil.createFile(dirName + bookName + "/" + bookName + ".txt");
-                }else{
-                    FileUtil.writeFile(dirName + bookName + "/" + bookName + ".txt",currentPageContents);
-                }
-            }else{
-                FileUtil.writeFile(dirName + bookName + "/" + bookName + ".txt",currentPageContents);
+            String dir = dirName + bookName;
+            String fileName = dir + slash + bookName + txt;
+            if(0 == findNum(page.getUrl().toString())){
+                FileUtil.createDir(dir);
+                FileUtil.createFile(fileName);
             }
+            FileUtil.writeFile(fileName,currentPageContents);
         } else {
             page.setSkip(true);
         }
     }
 
-    /**
+    /**n
      * @param url
      * @return
      * @throws Exception
+     * 中文转换GB2312编码
      */
     public String urlTransform(String url) {
         String encodeUrl = "";
@@ -132,19 +112,17 @@ public class BookBaoSpiderController implements PageProcessor {
     }
 
     /**
-     * @param
+     * @param url
      * @return
      * @throws Exception
-     * [0] 为需要切的URL [1]为是否需要后缀标识
+     * 解决字符串中数字
      */
-    public String subUrl(String ... values) {
-        String regEX = numberReg , result="";
-        if("pre".equals(values[1])){
-            regEX = contentPage;
-        }
-        Matcher matcher = Pattern.compile(regEX).matcher(values[0]);
+    public Integer findNum(String url) {
+        Integer result = 0;
+        String regEX = numberReg ;
+        Matcher matcher = Pattern.compile(regEX).matcher(url);
         while(matcher.find()){
-            result = matcher.group();
+            result = Integer.parseInt(matcher.group());
         }
         return result;
     }
