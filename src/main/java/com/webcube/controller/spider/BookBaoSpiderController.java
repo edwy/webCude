@@ -52,8 +52,8 @@ public class BookBaoSpiderController implements PageProcessor {
     public String startBookSpider(@Param String url, Request request, Response response) {
         Site site = new Site();
         site.setCharset("UTF-8");
-        Spider bookBaoSpider = Spider.create(new BookBaoSpiderController()).addUrl(url).thread(2);
-        bookBaoSpider.run();
+        Spider bookBaoSpider = Spider.create(new BookBaoSpiderController()).addUrl(url).thread(1);
+        bookBaoSpider.start();
         return null;
     }
 
