@@ -40,19 +40,17 @@ public class BookBaoSpiderController implements PageProcessor {
     /**
      * 定义需要抓去固定页
      */
+    public static String listUrl = "http://www\\.bookbao\\.cc/TXT/list2_[0-9]+\\.html";
     public static String dataUrl = "http://www\\.bookbao\\.cc/TXT/down_\\w+\\.html";
-
     public static String contentPage = "http://www\\.bookbao\\.cc/book\\.php\\?txt=/TXT/((%[0-9A-Fa-f]{2}){2})+\\.txt";
-
     public static String urlSuffix = "\\&yeshu=";
-
     public static String numberReg = "[0-9]+";
 
     @PostRoute("bookSpider")
     public String startBookSpider(@Param String url, Request request, Response response) {
         Site site = new Site();
         site.setCharset("UTF-8");
-        Spider bookBaoSpider = Spider.create(new BookBaoSpiderController()).addUrl(url).thread(1);
+        Spider bookBaoSpider = Spider.create(new BookBaoSpiderController()).addUrl(url).thread(20);
         bookBaoSpider.start();
         return null;
     }
@@ -64,9 +62,21 @@ public class BookBaoSpiderController implements PageProcessor {
 
     @Override
     public void process(Page page) {
+
         String pre = "^" , end = "$",slash ="/",txt = ".txt";
-        page.addTargetRequests(page.getHtml().xpath("//div[@class='listl2']/ul/li/h5").links().all());
-        if (page.getUrl().regex(dataUrl).match()) {
+        Integer maxListPageIndex = 0;
+        //so fool  i need downloer
+        if(page.getUrl().regex(listUrl).match()){
+            if(1 == findNum(page.getUrl().toString())){
+                maxListPageIndex = Integer.parseInt(page.getHtml().$(".listl2 > dl:nth-child(3) > code:nth-child(5) > a:nth-child(10)").regex("(?<=>).*(?=</a>)").toString());
+                page.addTargetRequests(page.getHtml().xpath("//div[@class='listl2']/ul/li/h5").links().all());
+                for(int i = 1; i<maxListPageIndex;i++){
+                    page.addTargetRequest("http://www.bookbao.cc/TXT/list2_"+i+".html");
+                }
+            }else{
+                page.addTargetRequests(page.getHtml().xpath("//div[@class='listl2']/ul/li/h5").links().all());
+            }
+        } else if (page.getUrl().regex(dataUrl).match()) {
             page.addTargetRequest(urlTransform(page.getHtml().$(".downlistbox > li:nth-child(1) > a:nth-child(1)").links().toString()));
         } else if (page.getUrl().regex(pre+contentPage+end).match()) {
             String endPageUrl = urlTransform(page.getHtml().xpath("/html/body/div/div").links().all().get(13).toString());
