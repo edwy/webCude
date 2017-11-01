@@ -78,12 +78,14 @@ public class BookBaoSpiderController implements PageProcessor {
             }
         } else if (page.getUrl().regex(dataUrl).match()) {
             page.addTargetRequest(urlTransform(page.getHtml().$(".downlistbox > li:nth-child(1) > a:nth-child(1)").links().toString()));
+            //获取下载内容页TXT,并进行下载;
         } else if (page.getUrl().regex(pre+contentPage+end).match()) {
             String endPageUrl = urlTransform(page.getHtml().xpath("/html/body/div/div").links().all().get(13).toString());
             Integer endPageIndex = findNum(endPageUrl);
             for (int i = 0; i <= endPageIndex; i++) {
                     page.addTargetRequest(urlTransform(page.getUrl() + "&yeshu=" + i));
             }
+            //获取明细内容页;此处可以存储数据库
         } else if (page.getUrl().regex(contentPage+urlSuffix+numberReg).match()) {
             String bookName = page.getHtml().xpath("/html/body/h1/text()").toString();
             String currentPageContents = page.getHtml().xpath("//div[@class='ddd']/text()").toString();
